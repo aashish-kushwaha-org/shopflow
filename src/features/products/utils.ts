@@ -3,7 +3,7 @@ import type { Product } from '@/types/product.types';
 interface ProductFilters {
     price?: { min?: number; max?: number };
     inStock?: boolean;
-    category?: string;
+    categories?: string[];
     searchTerm?: string;
 }
 
@@ -11,12 +11,13 @@ export const filterProducts = (
     products: Product[],
     filters: ProductFilters,
 ): Product[] => {
-    if (filters.category) {
-        const { category } = filters;
-        products = products.filter(
-            (product) =>
-                product.category && product?.category.includes(category),
-        );
+    if (filters.categories && filters.categories.length > 0) {
+        const { categories } = filters;
+        products = products.filter((product) => {
+            return categories.some((category) =>
+                product.categories?.includes(category),
+            );
+        });
     }
 
     if (filters.inStock) {
