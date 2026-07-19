@@ -5,7 +5,7 @@ export interface Product {
     stock: number;
     imageUrl?: string;
     description: string;
-    category?: string[];
+    categories?: string[];
 }
 
 export type CartItem = Pick<Product, 'name' | 'price' | 'imageUrl'> & {
