@@ -98,7 +98,11 @@ export const ProductsListing = ({ products }: ProductsListingProps) => {
                 </div>
                 <button>Search</button>
             </form>
-            <ProductList products={filteredProducts} />
+            {filteredProducts.length > 0 ? (
+                <ProductList products={filteredProducts} />
+            ) : (
+                <h3>No Products found for filter criteria</h3>
+            )}
         </div>
     );
 };
