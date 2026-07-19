@@ -3,7 +3,7 @@ function App() {
         <>
             <h1>This is React Typescript learning</h1>
         </>
-    )
+    );
 }
 
-export default App
+export default App;
