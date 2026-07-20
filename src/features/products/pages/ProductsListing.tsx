@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { ProductList } from '@/features/products/components/ProductList';
-import { filterProducts } from '@/features/products/utils';
-import type { Product } from '@/types/product.types';
 import { List } from '@/components/List';
+import { filterProducts } from '@/features/products/utils';
+import { ProductList } from '@/features/products/components/ProductList';
+import type { Product } from '@/types/product.types';
+import type { ProductFiltersType } from '../types';
 
 interface ProductsListingProps {
     products: Product[];
@@ -21,13 +22,16 @@ const categories = [
     'electronics',
 ];
 
+const defaultFilters: ProductFiltersType = {
+    searchTerm: '',
+    categories: [],
+    price: { min: -Infinity, max: Infinity },
+};
+
 export const ProductsListing = ({ products }: ProductsListingProps) => {
     const [filteredProducts, setFilteredProducts] =
         useState<Product[]>(products);
-    const [filters, setFilters] = useState<{
-        searchTerm: string;
-        categories: string[];
-    }>({ searchTerm: '', categories: [] });
+    const [filters, setFilters] = useState<ProductFiltersType>(defaultFilters);
 
     const searchTermChangeHandler = (
         e: React.ChangeEvent<HTMLInputElement>,
@@ -53,6 +57,17 @@ export const ProductsListing = ({ products }: ProductsListingProps) => {
                 categories: categoriesCopy,
             }));
         }
+    };
+
+    const priceChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.valueAsNumber;
+        setFilters((filters) => ({
+            ...filters,
+            price: {
+                ...filters.price,
+                [e.target.name]: Number.isNaN(value) ? 0 : value,
+            },
+        }));
     };
 
     const filterProductsHandler = (e: React.SubmitEvent<HTMLFormElement>) => {
@@ -96,7 +111,42 @@ export const ProductsListing = ({ products }: ProductsListingProps) => {
                         )}
                     />
                 </div>
+                <div>
+                    <label htmlFor="minPrice">Min Price</label>
+                    <input
+                        type="number"
+                        min={0}
+                        id="minPrice"
+                        name="min"
+                        placeholder="Minimum price"
+                        value={filters.price.min}
+                        onChange={priceChangeHandler}
+                    />
+                </div>
+                <div>
+                    <label htmlFor="maxPrice">Max Price</label>
+                    <input
+                        type="number"
+                        min={0}
+                        name="max"
+                        id="maxPrice"
+                        placeholder="Maximum price"
+                        value={filters.price.max}
+                        onChange={priceChangeHandler}
+                    />
+                </div>
                 <button>Search</button>
+                <button
+                    type="reset"
+                    onClick={() => {
+                        setFilteredProducts(
+                            filterProducts(products, defaultFilters),
+                        );
+                        setFilters(defaultFilters);
+                    }}
+                >
+                    Reset Filters
+                </button>
             </form>
             {filteredProducts.length > 0 ? (
                 <ProductList products={filteredProducts} />
