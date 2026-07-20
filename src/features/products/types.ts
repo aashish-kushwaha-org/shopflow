@@ -7,3 +7,13 @@ export interface ProductFiltersType {
     categories: string[];
     price: { min: number; max: number };
 }
+
+export type ProductSortOptionsType =
+    'price - low to high' | 'price - high to low';
+
+export interface ProductFilters {
+    price?: { min?: number; max?: number };
+    inStock?: boolean;
+    categories?: string[];
+    searchTerm?: string;
+}

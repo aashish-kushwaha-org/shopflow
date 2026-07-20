@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { List } from '@/components/List';
-import { filterProducts } from '@/features/products/utils';
+import { filterProducts, sortProductsBy } from '@/features/products/utils';
 import { ProductList } from '@/features/products/components/ProductList';
 import type { Product } from '@/types/product.types';
-import type { ProductFiltersType } from '../types';
+import type { ProductFiltersType, ProductSortOptionsType } from '../types';
 
 interface ProductsListingProps {
     products: Product[];
@@ -25,13 +25,17 @@ const categories = [
 const defaultFilters: ProductFiltersType = {
     searchTerm: '',
     categories: [],
-    price: { min: -Infinity, max: Infinity },
+    price: { min: 0, max: 1000 },
 };
 
 export const ProductsListing = ({ products }: ProductsListingProps) => {
-    const [filteredProducts, setFilteredProducts] =
-        useState<Product[]>(products);
+    const defaultSortValue: ProductSortOptionsType = 'price - low to high';
+    const [filteredProducts, setFilteredProducts] = useState<Product[]>(() =>
+        sortProductsBy(products, defaultSortValue),
+    );
     const [filters, setFilters] = useState<ProductFiltersType>(defaultFilters);
+    const [sortBy, setSortBy] =
+        useState<ProductSortOptionsType>(defaultSortValue);
 
     const searchTermChangeHandler = (
         e: React.ChangeEvent<HTMLInputElement>,
@@ -140,7 +144,10 @@ export const ProductsListing = ({ products }: ProductsListingProps) => {
                     type="reset"
                     onClick={() => {
                         setFilteredProducts(
-                            filterProducts(products, defaultFilters),
+                            sortProductsBy(
+                                filterProducts(products, defaultFilters),
+                                sortBy,
+                            ),
                         );
                         setFilters(defaultFilters);
                     }}
@@ -148,6 +155,24 @@ export const ProductsListing = ({ products }: ProductsListingProps) => {
                     Reset Filters
                 </button>
             </form>
+            <label htmlFor="sort-products">Sort By</label>
+            <select
+                id="sort-products"
+                value={sortBy}
+                onChange={(e) => {
+                    const { value } = e.target;
+                    setSortBy(value as ProductSortOptionsType);
+                    setFilteredProducts(
+                        sortProductsBy(
+                            filteredProducts,
+                            value as ProductSortOptionsType,
+                        ),
+                    );
+                }}
+            >
+                <option value="price - low to high">Price - Low to High</option>
+                <option value="price - high to low">Price - High to Low</option>
+            </select>
             {filteredProducts.length > 0 ? (
                 <ProductList products={filteredProducts} />
             ) : (

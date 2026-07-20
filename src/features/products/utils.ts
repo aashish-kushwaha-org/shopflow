@@ -1,11 +1,5 @@
 import type { Product } from '@/types/product.types';
-
-interface ProductFilters {
-    price?: { min?: number; max?: number };
-    inStock?: boolean;
-    categories?: string[];
-    searchTerm?: string;
-}
+import type { ProductFilters, ProductSortOptionsType } from './types';
 
 export const filterProducts = (
     products: Product[],
@@ -42,4 +36,13 @@ export const filterProducts = (
     }
 
     return products;
+};
+
+export const sortProductsBy = (
+    products: Product[],
+    key: ProductSortOptionsType,
+): Product[] => {
+    return products.sort((a, b) =>
+        key === 'price - low to high' ? a.price - b.price : b.price - a.price,
+    );
 };
