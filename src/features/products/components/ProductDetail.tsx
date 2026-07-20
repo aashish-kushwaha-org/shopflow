@@ -40,7 +40,11 @@ export const ProductDetail = ({ product, onAddToCart }: ProductDetailProps) => {
                     />
                 </div>
             )}
-            <h3>Only {stock} items left.</h3>
+            <h3 style={{ color: stock < 4 ? 'tomato' : 'inherit' }}>
+                {stock === 0
+                    ? 'Currently Unavailable'
+                    : `Only ${stock} items left.`}
+            </h3>
             <p>{description}</p>
             <button
                 disabled={!(stock > 0)}
