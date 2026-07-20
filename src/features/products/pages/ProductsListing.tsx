@@ -84,6 +84,7 @@ export const ProductsListing = ({ products }: ProductsListingProps) => {
 
     return (
         <div>
+            <h1>Products Catalogue</h1>
             <form onSubmit={filterProductsHandler}>
                 <input
                     type="text"

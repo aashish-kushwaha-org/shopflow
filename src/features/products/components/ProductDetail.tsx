@@ -28,6 +28,7 @@ export const ProductDetail = ({ product, onAddToCart }: ProductDetailProps) => {
             </h3>
             {categories.length > 0 && (
                 <div>
+                    <span>Categories: </span>
                     <List
                         items={categories}
                         keyExtractor={(category) => category}
