@@ -1,6 +1,7 @@
 import type React from 'react';
 import type { Product } from '@/types/product.types';
 import { formatPrice } from '@/lib/price';
+import { Link } from 'react-router-dom';
 
 export interface ProductCardProps {
     product: Product;
@@ -19,8 +20,12 @@ export const ProductCard = ({
             : 'favicon.svg';
 
     return (
-        <div>
-            <img src={productImageUrl} alt={product.name} />
+        <Link to={`/products/${product.id}`}>
+            <img
+                src={productImageUrl}
+                alt={product.name}
+                style={{ aspectRatio: '16/9', maxWidth: '280px' }}
+            />
             <h3>{product.name}</h3>
             <p>{product.description}</p>
             <h3>{formatPrice(product.price)}</h3>
@@ -31,6 +36,6 @@ export const ProductCard = ({
                 {product.stock > 0 ? 'Add to Cart' : 'Out of stock'}
             </button>
             {children}
-        </div>
+        </Link>
     );
 };

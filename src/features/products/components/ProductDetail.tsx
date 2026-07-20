@@ -1,6 +1,6 @@
+import { List } from '@/components/List';
 import { formatPrice } from '@/lib/price';
 import type { ProductCardProps } from './ProductCard';
-import { List } from '@/components/List';
 
 type ProductDetailProps = Omit<ProductCardProps, 'children'>;
 
@@ -28,6 +28,7 @@ export const ProductDetail = ({ product, onAddToCart }: ProductDetailProps) => {
             </h3>
             {categories.length > 0 && (
                 <div>
+                    <span>Categories: </span>
                     <List
                         items={categories}
                         keyExtractor={(category) => category}
