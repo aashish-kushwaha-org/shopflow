@@ -3,7 +3,10 @@ import { List } from '@/components/List';
 import { filterProducts, sortProductsBy } from '@/features/products/utils';
 import { ProductList } from '@/features/products/components/ProductList';
 import type { Product } from '@/types/product.types';
-import type { ProductFiltersType, ProductSortOptionsType } from '../types';
+import type {
+    ProductFiltersType,
+    ProductSortOptionsType,
+} from '../product.types';
 
 interface ProductsListingProps {
     products: Product[];

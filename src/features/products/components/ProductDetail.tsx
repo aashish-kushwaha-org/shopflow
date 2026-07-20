@@ -1,6 +1,6 @@
+import { List } from '@/components/List';
 import { formatPrice } from '@/lib/price';
 import type { ProductCardProps } from './ProductCard';
-import { List } from '@/components/List';
 
 type ProductDetailProps = Omit<ProductCardProps, 'children'>;
 
