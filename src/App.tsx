@@ -15,6 +15,7 @@ import { getProduct } from '@/api/product.api';
 import { unwrapApiResponse } from '@/lib/utils';
 import { useCart } from '@/features/cart/useCart';
 import { getCartItemsCount } from '@/features/cart/utils';
+import CartPage from '@/features/cart/CartPage';
 import type { User } from '@/types/product.types';
 
 const ProductDetailsPage = () => {
@@ -108,6 +109,14 @@ function App() {
                     path="/"
                     element={
                         <h1>ShopFlow | Perfect destination for shopping 🛍</h1>
+                    }
+                />
+                <Route
+                    path="/cart"
+                    element={
+                        <RoleGate allowedRoles={['admin', 'customer', 'staff']}>
+                            <CartPage />
+                        </RoleGate>
                     }
                 />
                 <Route
