@@ -11,6 +11,6 @@ export const addItemToCart = async (item: CartItem): Promise<CartItem> => {
             } else {
                 resolve(item);
             }
-        }, 2000);
+        }, 300);
     });
 };
