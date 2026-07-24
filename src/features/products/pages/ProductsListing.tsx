@@ -1,16 +1,14 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { List } from '@/components/List';
 import { filterProducts, sortProductsBy } from '@/features/products/utils';
 import { ProductList } from '@/features/products/components/ProductList';
-import type { Product } from '@/types/product.types';
 import type {
     ProductFiltersType,
     ProductSortOptionsType,
 } from '../product.types';
-
-interface ProductsListingProps {
-    products: Product[];
-}
+import { useQuery } from '@tanstack/react-query';
+import { getProducts } from '@/api/product.api';
+import { unwrapApiResponse } from '@/lib/utils';
 
 const categories = [
     'food',
@@ -31,35 +29,53 @@ const defaultFilters: ProductFiltersType = {
     price: { min: 0, max: 1000 },
 };
 
-export const ProductsListing = ({ products }: ProductsListingProps) => {
+export const ProductsListing = () => {
+    const { data, isError, isLoading, error } = useQuery({
+        queryKey: ['products'],
+        queryFn: () => getProducts().then(unwrapApiResponse),
+    });
     const defaultSortValue: ProductSortOptionsType = 'price - low to high';
-    const [filteredProducts, setFilteredProducts] = useState<Product[]>(() =>
-        sortProductsBy(products, defaultSortValue),
-    );
-    const [filters, setFilters] = useState<ProductFiltersType>(defaultFilters);
+    const [draftFilters, setDraftFilters] =
+        useState<ProductFiltersType>(defaultFilters);
+    const [appliedFilters, setAppliedFilters] =
+        useState<ProductFiltersType>(defaultFilters);
     const [sortBy, setSortBy] =
         useState<ProductSortOptionsType>(defaultSortValue);
+
+    const filteredProducts = useMemo(() => {
+        if (isLoading || data === undefined) return [];
+
+        const filtered = filterProducts(data, appliedFilters);
+        return sortProductsBy(filtered, sortBy);
+    }, [isLoading, data, sortBy, appliedFilters]);
+
+    if (isLoading) return <h3>Loading Products...</h3>;
+    if (isError) return <h3>{String(error)}</h3>;
+    if (data === undefined) return <h3>No Products found.</h3>;
 
     const searchTermChangeHandler = (
         e: React.ChangeEvent<HTMLInputElement>,
     ): void => {
-        setFilters((filters) => ({ ...filters, searchTerm: e.target.value }));
+        setDraftFilters((filters) => ({
+            ...filters,
+            searchTerm: e.target.value,
+        }));
     };
 
     const categoriesChangeHandler = (category: string) => {
-        const categoryIndex = filters.categories.findIndex(
+        const categoryIndex = draftFilters.categories.findIndex(
             (c) => c === category,
         );
         if (categoryIndex === -1) {
-            setFilters((filters) => ({
+            setDraftFilters((filters) => ({
                 ...filters,
                 categories: [...filters.categories, category],
             }));
         } else {
-            const categoriesCopy = [...filters.categories];
+            const categoriesCopy = [...draftFilters.categories];
             categoriesCopy.splice(categoryIndex, 1);
 
-            setFilters((filters) => ({
+            setDraftFilters((filters) => ({
                 ...filters,
                 categories: categoriesCopy,
             }));
@@ -68,7 +84,7 @@ export const ProductsListing = ({ products }: ProductsListingProps) => {
 
     const priceChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.valueAsNumber;
-        setFilters((filters) => ({
+        setDraftFilters((filters) => ({
             ...filters,
             price: {
                 ...filters.price,
@@ -79,7 +95,7 @@ export const ProductsListing = ({ products }: ProductsListingProps) => {
 
     const filterProductsHandler = (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setFilteredProducts(filterProducts(products, filters));
+        setAppliedFilters(draftFilters);
     };
 
     return (
@@ -88,7 +104,7 @@ export const ProductsListing = ({ products }: ProductsListingProps) => {
             <form onSubmit={filterProductsHandler}>
                 <input
                     type="text"
-                    value={filters.searchTerm}
+                    value={draftFilters.searchTerm}
                     placeholder="Search products..."
                     onChange={searchTermChangeHandler}
                 />
@@ -105,7 +121,7 @@ export const ProductsListing = ({ products }: ProductsListingProps) => {
                                             categoriesChangeHandler(category)
                                         }
                                         type="checkbox"
-                                        checked={filters.categories.includes(
+                                        checked={draftFilters.categories.includes(
                                             category,
                                         )}
                                     />
@@ -127,7 +143,7 @@ export const ProductsListing = ({ products }: ProductsListingProps) => {
                         id="minPrice"
                         name="min"
                         placeholder="Minimum price"
-                        value={filters.price.min}
+                        value={draftFilters.price.min}
                         onChange={priceChangeHandler}
                     />
                 </div>
@@ -139,7 +155,7 @@ export const ProductsListing = ({ products }: ProductsListingProps) => {
                         name="max"
                         id="maxPrice"
                         placeholder="Maximum price"
-                        value={filters.price.max}
+                        value={draftFilters.price.max}
                         onChange={priceChangeHandler}
                     />
                 </div>
@@ -147,13 +163,8 @@ export const ProductsListing = ({ products }: ProductsListingProps) => {
                 <button
                     type="reset"
                     onClick={() => {
-                        setFilteredProducts(
-                            sortProductsBy(
-                                filterProducts(products, defaultFilters),
-                                sortBy,
-                            ),
-                        );
-                        setFilters(defaultFilters);
+                        setDraftFilters(defaultFilters);
+                        setAppliedFilters(defaultFilters);
                     }}
                 >
                     Reset Filters
@@ -163,16 +174,9 @@ export const ProductsListing = ({ products }: ProductsListingProps) => {
             <select
                 id="sort-products"
                 value={sortBy}
-                onChange={(e) => {
-                    const { value } = e.target;
-                    setSortBy(value as ProductSortOptionsType);
-                    setFilteredProducts(
-                        sortProductsBy(
-                            filteredProducts,
-                            value as ProductSortOptionsType,
-                        ),
-                    );
-                }}
+                onChange={(e) =>
+                    setSortBy(e.target.value as ProductSortOptionsType)
+                }
             >
                 <option value="price - low to high">Price - Low to High</option>
                 <option value="price - high to low">Price - High to Low</option>

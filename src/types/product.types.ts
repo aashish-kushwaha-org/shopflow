@@ -1,12 +1,18 @@
-export interface Product {
-    id: string;
-    name: string;
-    price: number;
-    stock: number;
-    imageUrl?: string;
-    description: string;
-    categories?: string[];
-}
+import { z as zod } from 'zod';
+
+export const ProductSchema = zod.object({
+    id: zod.string(),
+    name: zod.string(),
+    price: zod.number().positive(),
+    stock: zod.number().int().nonnegative(),
+    description: zod.string(),
+    imageUrl: zod.string().url().optional(),
+    categories: zod.array(zod.string()).optional(),
+});
+
+export const ProductsListSchema = zod.array(ProductSchema);
+
+export type Product = zod.infer<typeof ProductSchema>;
 
 export type CartItem = Pick<Product, 'name' | 'price' | 'imageUrl'> & {
     quantity: number;
