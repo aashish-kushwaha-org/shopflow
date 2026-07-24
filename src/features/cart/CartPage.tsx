@@ -13,6 +13,13 @@ const CartItem = ({ name, price, quantity, imageUrl, productId }: CartItem) => {
         dispatch({ type: 'UPDATE_QUANTITY', payload: { productId, quantity } });
     };
 
+    const removeItemHandler = () => {
+        dispatch({
+            type: 'REMOVE_ITEM',
+            payload: productId,
+        });
+    };
+
     return (
         <div
             style={{
@@ -47,11 +54,12 @@ const CartItem = ({ name, price, quantity, imageUrl, productId }: CartItem) => {
                         disabled={quantity === 1}
                         onClick={() => updateQuantityHandler(quantity - 1)}
                     >
-                        Remove 1 item
+                        Decrease quantity
                     </button>
                     <button onClick={() => updateQuantityHandler(quantity + 1)}>
-                        Add 1 item
+                        Increase quantity
                     </button>
+                    <button onClick={removeItemHandler}>Remove item</button>
                 </div>
             </div>
         </div>

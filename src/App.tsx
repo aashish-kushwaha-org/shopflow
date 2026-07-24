@@ -95,12 +95,17 @@ function App() {
                     >
                         {isUserAvailable ? 'Logout' : 'Login'}
                     </button>
-                    <Link
-                        to="/cart"
-                        style={{ marginLeft: '.75rem', textDecoration: 'none' }}
-                    >
-                        Cart ({getCartItemsCount(items)})
-                    </Link>
+                    {isUserAvailable && (
+                        <Link
+                            to="/cart"
+                            style={{
+                                marginLeft: '.75rem',
+                                textDecoration: 'none',
+                            }}
+                        >
+                            Cart ({getCartItemsCount(items)})
+                        </Link>
+                    )}
                 </nav>
             </header>
 
