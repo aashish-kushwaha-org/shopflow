@@ -5,14 +5,16 @@ import {
     useParams,
     BrowserRouter,
 } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { NotFound } from '@/404';
 import { ProductsListing } from '@/features/products/pages/ProductsListing';
 import { ProductDetail } from '@/features/products/components/ProductDetail';
 import { RoleGate } from '@/features/auth/components/RoleGate';
 import { useAuth } from '@/features/auth/useAuth';
 import { getProduct } from '@/api/product.api';
-import { useQuery } from '@tanstack/react-query';
 import { unwrapApiResponse } from '@/lib/utils';
+import { useCart } from '@/features/cart/useCart';
+import { getCartItemsCount } from '@/features/cart/utils';
 import type { User } from '@/types/product.types';
 
 const ProductDetailsPage = () => {
@@ -50,6 +52,9 @@ const ProductDetailsPage = () => {
 
 function App() {
     const { user, login, logout } = useAuth();
+    const {
+        state: { items },
+    } = useCart();
     const isUserAvailable = user !== null;
 
     const newUser: User = {
@@ -89,6 +94,12 @@ function App() {
                     >
                         {isUserAvailable ? 'Logout' : 'Login'}
                     </button>
+                    <Link
+                        to="/cart"
+                        style={{ marginLeft: '.75rem', textDecoration: 'none' }}
+                    >
+                        Cart ({getCartItemsCount(items)})
+                    </Link>
                 </nav>
             </header>
 

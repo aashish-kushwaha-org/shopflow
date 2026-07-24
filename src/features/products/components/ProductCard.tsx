@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import type { Product } from '@/types/product.types';
 import { formatPrice } from '@/lib/price';
 import { useAddToCart } from '@/features/cart/useAddToCart';
+import { useEffect } from 'react';
 
 export interface ProductCardProps {
     product: Product;
@@ -17,7 +18,7 @@ export const ProductCard = ({
     onAddError = () => {},
     onAddSuccess = () => {},
 }: ProductCardProps) => {
-    const { addToCart } = useAddToCart();
+    const { addToCart, isPending, isSuccess } = useAddToCart();
 
     const productImageUrl =
         product.imageUrl !== undefined && product.imageUrl.trim().length > 0
@@ -35,6 +36,10 @@ export const ProductCard = ({
         addToCart(cartItem, { onSuccess: onAddSuccess, onError: onAddError });
     };
 
+    useEffect(() => {
+        if (isSuccess) alert(`Item added to the cart : ${product.name}`);
+    }, [isSuccess, product.name]);
+
     return (
         <div>
             <Link to={`/products/${product.id}`}>
@@ -47,7 +52,10 @@ export const ProductCard = ({
             <h3>{product.name}</h3>
             <p>{product.description}</p>
             <h3>{formatPrice(product.price)}</h3>
-            <button disabled={!(product.stock > 0)} onClick={addToCartHandler}>
+            <button
+                disabled={!(product.stock > 0) || isPending}
+                onClick={addToCartHandler}
+            >
                 {product.stock > 0 ? 'Add to Cart' : 'Out of stock'}
             </button>
             {children}

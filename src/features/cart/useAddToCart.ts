@@ -6,7 +6,11 @@ import type { CartItem } from '@/types/product.types';
 export const useAddToCart = () => {
     const { state: cartState, dispatch } = useCart();
 
-    const { mutate: addToCart, isPending } = useMutation({
+    const {
+        mutate: addToCart,
+        isPending,
+        isSuccess,
+    } = useMutation({
         mutationFn: (item: CartItem) => addItemToCart(item),
         onMutate: (item: CartItem) => {
             const previousCartState = structuredClone(cartState);
@@ -25,5 +29,5 @@ export const useAddToCart = () => {
         },
     });
 
-    return { addToCart, isPending };
+    return { addToCart, isPending, isSuccess };
 };

@@ -7,3 +7,10 @@ export const calculateCartTotal = (items: CartItem[]): number => {
     }
     return total;
 };
+
+export const getCartItemsCount = (items: CartItem[]): number => {
+    return items.reduce((acc: number, item: CartItem) => {
+        acc += item.quantity;
+        return acc;
+    }, 0);
+};
