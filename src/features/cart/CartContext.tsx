@@ -6,8 +6,10 @@ export const cartReducer = (
     action: CartAction,
 ): CartState => {
     switch (action.type) {
-        case 'CLEAR':
+        case 'CLEAR_CART':
             return { ...state, items: [] };
+        case 'RESTORE_CART':
+            return { ...state, items: action.payload };
         case 'ADD_ITEM': {
             const itemsCopy = structuredClone(state.items);
             const productId = action.payload.productId;

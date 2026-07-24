@@ -8,51 +8,29 @@ import {
 import { NotFound } from '@/404';
 import { ProductsListing } from '@/features/products/pages/ProductsListing';
 import { ProductDetail } from '@/features/products/components/ProductDetail';
-import type { Product } from '@/types/product.types';
-
-const products: Product[] = [
-    {
-        id: '1',
-        stock: 10,
-        price: 99.99,
-        name: 'Mobile',
-        imageUrl: 'https://picsum.photos/800/400',
-        categories: ['electronics', 'accessories'],
-        description: 'Branded new 5G mobile phone from Apple',
-    },
-    {
-        id: '2',
-        stock: 0,
-        price: 3.49,
-        name: 'Bread',
-        imageUrl: 'https://picsum.photos/800/400',
-        categories: ['home'],
-        description: 'Soft fresh bread made with oil & wheat flour.',
-    },
-    {
-        id: '3',
-        stock: 10,
-        price: 199.99,
-        name: 'Laptop',
-        imageUrl: 'https://picsum.photos/800/400',
-        categories: ['electronics'],
-        description: 'Branded new 5G mobile phone from Apple',
-    },
-    {
-        id: '4',
-        stock: 5,
-        price: 7.99,
-        name: 'Milk',
-        imageUrl: 'https://picsum.photos/800/400',
-        categories: ['food'],
-        description: 'Soft fresh bread made with oil & wheat flour.',
-    },
-];
+import { RoleGate } from '@/features/auth/components/RoleGate';
+import { useAuth } from '@/features/auth/useAuth';
+import { getProduct } from '@/api/product.api';
+import { useQuery } from '@tanstack/react-query';
+import { unwrapApiResponse } from '@/lib/utils';
+import type { User } from '@/types/product.types';
 
 const ProductDetailsPage = () => {
-    const { productId } = useParams();
+    const { productId = '' } = useParams();
 
-    const product = products.find((p) => p.id === productId);
+    const {
+        data: product,
+        isLoading,
+        isError,
+        error,
+    } = useQuery({
+        queryKey: ['product', productId],
+        queryFn: () => getProduct(productId).then(unwrapApiResponse),
+    });
+
+    if (isLoading) return <h2>Loading product details...</h2>;
+
+    if (isError) return <h2>{String(error)}</h2>;
 
     if (product === undefined)
         return (
@@ -67,15 +45,23 @@ const ProductDetailsPage = () => {
             </h1>
         );
 
-    return (
-        <ProductDetail
-            product={product}
-            onAddToCart={(productId) => alert(`Product Added ${productId}`)}
-        />
-    );
+    return <ProductDetail product={product} />;
 };
 
 function App() {
+    const { user, login, logout } = useAuth();
+    const isUserAvailable = user !== null;
+
+    const newUser: User = {
+        id: '1',
+        name: 'John Paul',
+        email: 'john@paul.com',
+        profileImageUrl:
+            'https://plus.unsplash.com/premium_photo-1688350808212-4e6908a03925',
+        role: 'staff',
+        addresses: [],
+    };
+
     return (
         <BrowserRouter>
             <header
@@ -95,6 +81,14 @@ function App() {
                 </div>
                 <nav>
                     <Link to="/products">Check Products</Link>
+                    <button
+                        style={{ marginLeft: '.75rem' }}
+                        onClick={() =>
+                            isUserAvailable ? logout() : login(newUser)
+                        }
+                    >
+                        {isUserAvailable ? 'Logout' : 'Login'}
+                    </button>
                 </nav>
             </header>
 
@@ -107,11 +101,19 @@ function App() {
                 />
                 <Route
                     path="/products"
-                    element={<ProductsListing products={products} />}
+                    element={
+                        <RoleGate allowedRoles={['admin', 'staff']}>
+                            <ProductsListing />
+                        </RoleGate>
+                    }
                 />
                 <Route
                     path="/products/:productId"
-                    element={<ProductDetailsPage />}
+                    element={
+                        <RoleGate allowedRoles={['admin', 'staff']}>
+                            <ProductDetailsPage />
+                        </RoleGate>
+                    }
                 />
                 <Route path="*" element={<NotFound />} />
             </Routes>

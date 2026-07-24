@@ -7,10 +7,6 @@ interface ProductListProps {
 }
 
 export const ProductList = ({ products }: ProductListProps) => {
-    const addToCart = (productId: string): void => {
-        console.log(`product added : ${productId}`);
-    };
-
     return (
         <ul>
             <List
@@ -18,10 +14,7 @@ export const ProductList = ({ products }: ProductListProps) => {
                 keyExtractor={(item) => item.id}
                 renderItem={(product) => (
                     <li>
-                        <ProductCard
-                            product={product}
-                            onAddToCart={addToCart}
-                        />
+                        <ProductCard product={product} />
                     </li>
                 )}
             />

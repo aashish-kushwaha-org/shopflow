@@ -5,9 +5,10 @@ export interface CartState {
 }
 
 export type CartAction =
-    | { type: 'CLEAR' }
+    | { type: 'CLEAR_CART' }
     | { type: 'ADD_ITEM'; payload: CartItem }
     | { type: 'REMOVE_ITEM'; payload: string }
+    | { type: 'RESTORE_CART'; payload: CartItem[] }
     | {
           type: 'UPDATE_QUANTITY';
           payload: { productId: string; quantity: number };
